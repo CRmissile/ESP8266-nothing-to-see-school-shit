@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ESP8266 LED Control</title>
+</head>
+<style>
+  body {
+    text-align: center;
+    font-family: sans-serif;
+    background-color: #eee;
+  }
+  h1 {
+    font-size: 2em;
+    font-weight: bold;
+  }
+  #darkmodeToggle:checked ~ h1 {
+    color: #fff;
+  }
+  #ledButton {
+    font-size: 1.5em;
+    padding: 10px 20px;
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+  #darkmodeToggle:checked ~ #ledButton {
+    background-color: #0d8eff;
+  }
+  #darkmodeToggle {
+    margin-top: 10px;
+  }
+  #darkmodeToggle:checked + #darkmode {
+    background-color: #333;
+    color: #fff;
+  }
+  #darkmodeToggle:checked ~ body {
+    background-color: #333;
+    color: #fff;
+  }
+  #darkmodeToggleContainer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  #darkmodeToggleLabel {
+    font-size: 1.2em;
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #2196f3;
+    color: #fff;
+    border-radius: 5px;
+  }
+  #darkmodeToggle:checked ~ #darkmodeToggleLabel {
+    background-color: #0d8eff;
+  }
+  #darkmodeToggleLabel:hover {
+    background-color: #0d8eff;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2196f3;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  .slider:before {
+    position: absolute;
+    content: '';
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  input:checked + .slider {
+    background-color: #2196f3;
+  }
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196f3;
+  }
+  input:checked + .slider:before {
+    content: '';
+    background-color: yellow;
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  .slider.round:before {
+    border-radius: 50%;
+  }
+</style>
+<body>
+  <h1>Control the LED</h1>
+  <p id="ledStatusLED">Current status of the LED: <span id="ledStatus"></span></p>
+  <select id="ledSelect" onchange="toggleLED()">
+    <option value="1">LED 1</option>
+    <option value="2">LED 2</option>
+    <option value="3">LED 3</option>
+  </select>
+  <button id="ledButton" onclick="toggleLED()">Toggle LED</button>
+  <script>
+    function toggleLED() {
+      let ledValue = document.getElementById('ledSelect').value;
+      let xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById('ledStatus').innerHTML = digitalRead(ledPin);
+        }
+      };
+      xhttp.open('GET', '/led?state=' + ledValue, true);
+      xhttp.send();
+      document.getElementById('ledStatus').innerHTML = (document.getElementById('ledStatus').innerHTML == 'ON' ? 'OFF' : 'ON');
+    }
+  </script>
+  <div id="darkmodeToggleContainer">
+    <label class="switch" for="darkmodeToggle">
+      <input type="checkbox" id="darkmodeToggle" />
+      <span class="slider round"></span>
+      Dark Mode
+    </label>
+    <div id="darkmode">
+      This website supports dark mode!
+    </div>
+  </div>
+  <script>
+    document.getElementById('darkmodeToggle').addEventListener('click', function(e) {
+      if (e.target.checked) {
+        document.querySelector('body').style.backgroundColor = '#333';
+        document.querySelector('body').style.color = '#fff';
+        document.querySelector('h1').style.color = '#fff';
+        document.querySelector('#ledButton').style.backgroundColor = '#0d8eff';
+        document.querySelector('#darkmodeToggleLabel').style.backgroundColor = '#0d8eff';
+      } else {
+        document.querySelector('body').style.backgroundColor = '#eee';
+        document.querySelector('body').style.color = '#000';
+        document.querySelector('h1').style.color = '#000';
+        document.querySelector('#ledButton').style.backgroundColor = '#2196f3';
+        document.querySelector('#darkmodeToggleLabel').style.backgroundColor = '#2196f3';
+      }
+    });
+  </script>
+  <div id="imageSwitch">
+    <script>
+      let onOff = document.querySelector('#ledStatusLED').innerText;
+      if (onOff == 'ON') {
+        document.getElementById('imageSwitch').innerHTML = '<img src='https://media.discordapp.net/attachments/703376501168537612/1055046699430715453/on.webp' alt='on' />';
+      } else if (onOff == 'OFF') {
+        document.getElementById('imageSwitch').innerHTML = '<img src='https://media.discordapp.net/attachments/703376501168537612/1055046699368214531/off.webp' alt='off' />';
+      }
+    </script>
+  </div>
+</body>
+</html>
